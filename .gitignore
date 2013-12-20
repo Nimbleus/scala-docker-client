@@ -1,0 +1,12 @@
+.idea
+.idea_modules
+.history
+logs
+target
+project/boot
+project/target
+project/project/target
+temp
+RUNNING_PID
+
+
