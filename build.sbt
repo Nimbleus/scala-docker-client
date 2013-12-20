@@ -10,7 +10,9 @@ resolvers ++= Seq("Nimbleus Releases" at "https://repository-nimbleus.forge.clou
 
 credentials += Credentials(new File(Path.userHome, ".sbt/.viridity-credentials"))
 
-resolvers += Resolvers.spray
+resolvers += Resolvers.sprayRelease
+
+resolvers += Resolvers.sprayNightly
 
 resolvers += Resolvers.typeSafe
 
