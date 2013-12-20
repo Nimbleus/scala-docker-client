@@ -19,8 +19,8 @@ object Resolvers {
   val typeSafe                 = "Typesafe Repo"              at "http://repo.typesafe.com/typesafe/releases/"
   val ossSonatypeReleases      = "OSS Sonatype Releases"      at "https://oss.sonatype.org/content/repositories/releases"
   val ossSonatypeSnapshots     = "OSS Sonatype Snapshots"     at "https://oss.sonatype.org/content/repositories/snapshots"
-  val sprayMain                = "spray repo"                 at "http://repo.spray.io"
-  val spray                    = "spray nightly repo"         at "http://nightlies.spray.io"
+  val sprayRelease             = "spray repo"                 at "http://repo.spray.io"
+  val sprayNightly             = "spray nightly repo"         at "http://nightlies.spray.io"
 }
 
 object Compile {
