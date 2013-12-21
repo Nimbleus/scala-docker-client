@@ -14,7 +14,7 @@ credentials += Credentials(
 
 publishTo := {
   val nimbleus = "https://repository-nimbleus.forge.cloudbees.com/"
-  if (version.value.trim.endsWith("SNAPSHOT"))
+  if (DockerClient.Version.trim.endsWith("SNAPSHOT"))
     Some("snapshots" at nimbleus + "snapshot/")
   else
     Some("releases"  at nimbleus + "release/")
