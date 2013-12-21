@@ -1,5 +1,7 @@
 name := "scala-docker-client"
 
+organization := "com.nimbleus"
+
 version in ThisBuild := DockerClient.Version
 
 scalaVersion := "2.10.2"
