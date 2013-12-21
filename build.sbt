@@ -12,7 +12,13 @@ credentials += Credentials(
       if (Path("/private/nimbleus/repository.credentials").exists) new File("/private/nimbleus/repository.credentials")
       else new File(Path.userHome, ".sbt/.nimbleus-credentials"))
 
-publishTo := Some("Nacreous releases" at "https://repository-nimbleus.forge.cloudbees.com/snapshot/")
+publishTo := {
+  val nimbleus = "https://repository-nimbleus.forge.cloudbees.com/"
+  if (version.value.trim.endsWith("SNAPSHOT"))
+    Some("snapshots" at nimbleus + "snapshot/")
+  else
+    Some("releases"  at nimbleus + "release/")
+}
 
 resolvers += Resolvers.sprayRelease
 
