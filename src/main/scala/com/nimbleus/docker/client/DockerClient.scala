@@ -8,7 +8,7 @@ import com.nimbleus.docker.client.model._
 import com.nimbleus.docker.client.model.Container
 import com.nimbleus.docker.client.model.Image
 import com.nimbleus.docker.client.model.Version
-import scala.concurrent.Future
+import scala.concurrent.{Promise, Future}
 import spray.client.pipelining._
 import spray.httpx.SprayJsonSupport
 import spray.json._
@@ -18,7 +18,7 @@ import com.nimbleus.docker.client.model.ContainerProcess
 import com.nimbleus.docker.client.model.Version
 import com.nimbleus.docker.client.model.Image
 import scala.util.{Failure, Success}
-import spray.http.HttpResponse
+import spray.http.{StatusCode, HttpResponse}
 
 /**
  * This object exposes functions that call external Docker daemons
@@ -26,6 +26,7 @@ import spray.http.HttpResponse
  * User: cstewart
  */
 object DockerClient {
+  // TODO use implicit actor system of the calling class
   implicit val system = ActorSystem("DockerClient")
   import system.dispatcher // execution context for futures below
   import DockerProtocol._  // this is required to be in scope
@@ -47,6 +48,49 @@ object DockerClient {
     pipe(Post(serverUrl + "/containers/create", containerConfig))
   }
 
+  def startContainer(serverUrl: String, containerId: String) : Future[String] = {
+    val result = Promise[String]
+    val pipeline = sendReceive
+    val startResponse = pipeline(Post(serverUrl + "/containers/" + containerId + "/start"))
+    startResponse onComplete {
+      case Success(response: HttpResponse) => {
+        response.status.intValue match {
+          case 204 => {result.success("started container with id => " + containerId)}
+          case 404 => {result.failure(throw new Exception("no such container"))}
+          case 500 => {result.failure(throw new Exception("server error"))}
+        }
+      }
+      case Failure(e) =>{
+        result.failure(e)
+      }
+    }
+    result.future // return the future
+  }
+
+  def killContainer(serverUrl: String, containerId: String) : Future[String] = {
+    val result = Promise[String]
+    val pipeline = sendReceive
+    val startResponse = pipeline(Post(serverUrl + "/containers/" + containerId + "/kill"))
+    startResponse onComplete {
+      case Success(response: HttpResponse) => {
+        response.status.intValue match {
+          case 204 => {result.success("killed container with id => " + containerId)}
+          case 404 => {result.failure(throw new Exception("no such container"))}
+          case 500 => {result.failure(throw new Exception("server error"))}
+        }
+      }
+      case Failure(e) =>{
+        result.failure(e)
+      }
+    }
+    result.future // return the future
+  }
+
+  def inspectContainer(serverUrl: String, containerId: String) : Future[InspectContainerResponse] = {
+    val pipeline = sendReceive ~> unmarshal[InspectContainerResponse]
+    pipeline(Get(serverUrl + "/containers/" + containerId + "/json"))
+  }
+
   def listContainers(serverUrl: String, args:ContainerParam*) : Future[List[Container]] = {
     // parse the parameters if they exist
     val url = if (args.size > 0){
@@ -57,19 +101,9 @@ object DockerClient {
     pipeline(Get(url))
   }
 
-  def inspectContainer(serverUrl: String, containerId: String) : Unit = {
-    val pipeline = sendReceive ~> unmarshal[ContainerProcess]
-    pipeline(Get(serverUrl + "/containers/" + containerId + "/json"))
-  }
-
   def getContainerProcesses(serverUrl: String, processId: String) : Future[ContainerProcess] = {
     val pipeline = sendReceive ~> unmarshal[ContainerProcess]
     pipeline(Get(serverUrl + "/containers/" + processId + "/top"))
-  }
-
-  def startContainer(serverUrl: String, containerId: String) : Future[HttpResponse] = {
-    val pipeline = sendReceive
-    pipeline(Post(serverUrl + "/containers/" + containerId + "/start"))
   }
 
   def stopContainer(serverUrl: String, containerId: String, waitSecs: Int) : Future[HttpResponse] = {
@@ -80,11 +114,6 @@ object DockerClient {
   def restartContainer(serverUrl: String, containerId: String, waitSecs: Int) : Future[HttpResponse] = {
     val pipeline = sendReceive
     pipeline(Post(serverUrl + "/containers/" + containerId + "/restart?t=" + waitSecs))
-  }
-
-  def killContainer(serverUrl: String, containerId: String) : Future[HttpResponse] = {
-    val pipeline = sendReceive
-    pipeline(Post(serverUrl + "/containers/" + containerId + "/kill"))
   }
 
   // IMAGE CALLS
