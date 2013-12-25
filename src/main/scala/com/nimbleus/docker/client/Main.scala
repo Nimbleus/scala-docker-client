@@ -18,15 +18,50 @@ import ExecutionContext.Implicits.global
 object Main extends App {
   val serverUrl : String = "http://localhost:4243"
 
-  val createResponse = DockerClient.createContainer(serverUrl, CreateConfig("ubuntu", None, None, List("touch", "/test")))
+/*
+  val killResponse = DockerClient.killContainer(serverUrl, "155696e7a916cac9af9fe8fd92dce2036084ee2486b8212cdfaf286eb76d9708")
+  killResponse onComplete {
+    case Success(killResult: String) => {
+      println(killResult)
+    }
+    case Failure(e) =>{
+      println(e, "Couldn't not kill container")
+    }
+  }
+*/
+
+  
+/*
+  val inspectResponse = DockerClient.inspectContainer(serverUrl, "155696e7a916cac9af9fe8fd92dce2036084ee2486b8212cdfaf286eb76d9708")
+  inspectResponse onComplete {
+    case Success(inspectResult: InspectContainerResponse) => {
+      println(inspectResult.toString)
+    }
+    case Failure(e) =>{
+      println(e, "Couldn't not inspect container")
+    }
+  }
+*/
+
+/*  val createResponse = DockerClient.createContainer(serverUrl,
+    CreateConfig("ubuntu", None, None, List("/bin/sh", "-c", "while true; do echo Hello world; sleep 1; done")))
   createResponse onComplete {
     case Success(result: CreateContainerResponse) => {
-      println("created conatiner with id => " + result.Id)
+      println("created container with id => " + result.Id)
+      val startResponse = DockerClient.startContainer(serverUrl, result.Id)
+      startResponse onComplete {
+        case Success(startResult: String) => {
+          println(startResult)
+        }
+        case Failure(e) =>{
+          println(e, "Couldn't not start container")
+        }
+      }
     }
     case Failure(e) =>{
       println(e, "Couldn't not create container")
     }
-  }
+  }*/
 /*
   val versionResponse = DockerClient.getVersion(serverUrl)
   versionResponse onComplete {
