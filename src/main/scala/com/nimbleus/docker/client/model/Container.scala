@@ -64,7 +64,7 @@ object ContainerProcessHelper {
 }
 
 // create container support
-case class CreateConfig(Image: String, PortSpecs: Option[String], Env: Option[String], Cmd: List[String])
+case class CreateConfig(Image: String, PortSpecs: Option[String], Env: List[String], Cmd: List[String])
 case class CreateContainerResponse(Id: String)
 
 // inspect container
