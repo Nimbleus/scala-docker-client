@@ -43,8 +43,13 @@ object Main extends App {
   }
 */
 
-/*  val createResponse = DockerClient.createContainer(serverUrl,
-    CreateConfig("ubuntu", None, None, List("/bin/sh", "-c", "while true; do echo Hello world; sleep 1; done")))
+  val env: List[String] = List()
+  val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo Hello world; sleep 1; done")
+  val ports: List[String] = List()
+
+  val config = CreateConfig("ubuntu", ports, env, cmd)
+
+  val createResponse = DockerClient.createContainer(serverUrl, config, Some("TEST-CONTAINER"))
   createResponse onComplete {
     case Success(result: CreateContainerResponse) => {
       println("created container with id => " + result.Id)
@@ -61,7 +66,7 @@ object Main extends App {
     case Failure(e) =>{
       println(e, "Couldn't not create container")
     }
-  }*/
+  }
 /*
   val versionResponse = DockerClient.getVersion(serverUrl)
   versionResponse onComplete {

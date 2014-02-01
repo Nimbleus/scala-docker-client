@@ -43,9 +43,13 @@ object DockerClient {
   }
 
   // CONTAINER CALLS
-  def createContainer(serverUrl: String, containerConfig: CreateConfig) : Future[CreateContainerResponse] = {
+  def createContainer(serverUrl: String, containerConfig: CreateConfig, name: Option[String]) : Future[CreateContainerResponse] = {
     val pipe = sendReceive ~> unmarshal[CreateContainerResponse]
-    pipe(Post(serverUrl + "/containers/create", containerConfig))
+    var postUrl = "/containers/create"
+    if (name.isDefined) {
+      postUrl = postUrl + "?name=" + name.get
+    }
+    pipe(Post(serverUrl + postUrl, containerConfig))
   }
 
   def startContainer(serverUrl: String, containerId: String) : Future[String] = {
