@@ -90,6 +90,26 @@ object DockerClient {
     result.future // return the future
   }
 
+  def removeContainer(serverUrl: String, containerId: String) : Future[String] = {
+    val result = Promise[String]
+    val pipeline = sendReceive
+    val startResponse = pipeline(Delete(serverUrl + "/containers/" + containerId + "?v=1"))
+    startResponse onComplete {
+      case Success(response: HttpResponse) => {
+        response.status.intValue match {
+          case 204 => {result.success("removed container with id => " + containerId)}
+          case 400 => {result.failure(throw new Exception("bad parameter"))}
+          case 404 => {result.failure(throw new Exception("no such container"))}
+          case 500 => {result.failure(throw new Exception("server error"))}
+        }
+      }
+      case Failure(e) =>{
+        result.failure(e)
+      }
+    }
+    result.future // return the future
+  }
+
   def inspectContainer(serverUrl: String, containerId: String) : Future[InspectContainerResponse] = {
     val pipeline = sendReceive ~> unmarshal[InspectContainerResponse]
     pipeline(Get(serverUrl + "/containers/" + containerId + "/json"))
