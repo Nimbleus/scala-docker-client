@@ -19,6 +19,48 @@ object Main extends App {
   val serverUrl : String = "http://localhost:4243"
 
 /*
+  val containerResponse = DockerClient.listContainers(serverUrl)
+  containerResponse onComplete {
+    case Success(result: List[Container]) => {
+      println("containers => " + result.toString)
+      for(c <- result){
+        val containerProcessorResponse = DockerClient.getContainerProcesses(serverUrl, c.Id)
+        containerProcessorResponse onComplete {
+          case Success(result: ContainerProcess) => {
+            println("container processes => " + result.toString)
+          }
+          case Failure(error: UnsuccessfulResponseException) => {
+            println(ContainerProcessHelper.getErrorReason(error.response.status.intValue, error.response.message.toString))
+          }
+          case Failure(e) => {
+            println(e, "Couldn't list container processes")
+          }
+        }
+      }
+    }
+    case Failure(error: UnsuccessfulResponseException) => {
+      println(Container.getErrorReason(error.response.status.intValue, error.response.message.toString))
+    }
+    case Failure(e) =>{
+      println(e, "Couldn't list containers")
+    }
+  }
+*/
+
+//d36fc3a46dfa
+/*
+  val removeResponse = DockerClient.removeContainer(serverUrl, "8a8cba6a0c0c")
+  removeResponse onComplete {
+    case Success(removeResult: String) => {
+      println(removeResult)
+    }
+    case Failure(e) =>{
+      println(e, "Couldn't not remove container")
+    }
+  }*/
+
+
+/*
   val killResponse = DockerClient.killContainer(serverUrl, "155696e7a916cac9af9fe8fd92dce2036084ee2486b8212cdfaf286eb76d9708")
   killResponse onComplete {
     case Success(killResult: String) => {
@@ -31,18 +73,18 @@ object Main extends App {
 */
 
   
-/*
-  val inspectResponse = DockerClient.inspectContainer(serverUrl, "155696e7a916cac9af9fe8fd92dce2036084ee2486b8212cdfaf286eb76d9708")
+/*  val inspectResponse = DockerClient.inspectContainer(serverUrl, "d36fc3a46dfa")
   inspectResponse onComplete {
-    case Success(inspectResult: InspectContainerResponse) => {
+    //case Success(inspectResult: InspectContainerResponse) => {
+    case Success(inspectResult: String) => {
       println(inspectResult.toString)
     }
     case Failure(e) =>{
       println(e, "Couldn't not inspect container")
     }
-  }
-*/
+  }*/
 
+/*
   val env: List[String] = List()
   val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo Hello world; sleep 1; done")
   val ports: List[String] = List()
@@ -67,6 +109,7 @@ object Main extends App {
       println(e, "Couldn't not create container")
     }
   }
+*/
 /*
   val versionResponse = DockerClient.getVersion(serverUrl)
   versionResponse onComplete {
