@@ -60,8 +60,8 @@ object DockerClient {
       case Success(response: HttpResponse) => {
         response.status.intValue match {
           case 204 => {result.success("started container with id => " + containerId)}
-          case 404 => {result.failure(throw new Exception("no such container"))}
-          case 500 => {result.failure(throw new Exception("server error"))}
+          case 404 => {result.failure(new Exception("no such container"))}
+          case 500 => {result.failure(new Exception("server error"))}
         }
       }
       case Failure(e) =>{
@@ -79,8 +79,8 @@ object DockerClient {
       case Success(response: HttpResponse) => {
         response.status.intValue match {
           case 204 => {result.success("killed container with id => " + containerId)}
-          case 404 => {result.failure(throw new Exception("no such container"))}
-          case 500 => {result.failure(throw new Exception("server error"))}
+          case 404 => {result.failure(new Exception("no such container"))}
+          case 500 => {result.failure(new Exception("server error"))}
         }
       }
       case Failure(e) =>{
@@ -98,9 +98,9 @@ object DockerClient {
       case Success(response: HttpResponse) => {
         response.status.intValue match {
           case 204 => {result.success("removed container with id => " + containerId)}
-          case 400 => {result.failure(throw new Exception("bad parameter"))}
-          case 404 => {result.failure(throw new Exception("no such container"))}
-          case 500 => {result.failure(throw new Exception("server error"))}
+          case 400 => {result.failure(new Exception("bad parameter"))}
+          case 404 => {result.failure(new Exception("no such container"))}
+          case 500 => {result.failure(new Exception("server error"))}
         }
       }
       case Failure(e) =>{

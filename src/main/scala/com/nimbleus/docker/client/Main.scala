@@ -19,6 +19,17 @@ object Main extends App {
   val serverUrl : String = "http://localhost:4243"
 
 /*
+  val versionResponse = DockerClient.getVersion(serverUrl)
+  versionResponse onComplete {
+    case Success(result: Version) => {
+      println("version => " + result.toString)
+    }
+    case Failure(error) =>
+      println(error, "Couldn't retrieve version")
+  }
+*/
+
+/*
   val containerResponse = DockerClient.listContainers(serverUrl)
   containerResponse onComplete {
     case Success(result: List[Container]) => {
@@ -73,16 +84,16 @@ object Main extends App {
 */
 
   
-/*  val inspectResponse = DockerClient.inspectContainer(serverUrl, "d36fc3a46dfa")
+  val inspectResponse = DockerClient.inspectContainer(serverUrl, "d617d18c76ca")
   inspectResponse onComplete {
-    //case Success(inspectResult: InspectContainerResponse) => {
-    case Success(inspectResult: String) => {
+    case Success(inspectResult: InspectContainerResponse) => {
+    //case Success(inspectResult: String) => {
       println(inspectResult.toString)
     }
     case Failure(e) =>{
       println(e, "Couldn't not inspect container")
     }
-  }*/
+  }
 
 /*
   val env: List[String] = List()

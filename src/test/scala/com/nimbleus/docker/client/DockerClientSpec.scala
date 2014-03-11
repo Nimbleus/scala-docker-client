@@ -3,26 +3,30 @@
  */
 package com.nimbleus.docker.client
 
-import com.typesafe.config.ConfigFactory
-import scala.concurrent.duration._
-import akka.util.Timeout
-import akka.actor._
+import org.scalatest.{Matchers, FunSuite}
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest._
+import com.nimbleus.docker.client.model.Version
+import scala.util.{Failure, Success}
+import org.scalatest.time.{ Millis, Seconds, Span }
 
 /**
  * This is the unit test for the docker client
  * User: cstewart
  */
-class DockerClientSpec {
-  implicit val timeout: Timeout = 5.seconds
-  val testConf = ConfigFactory.parseString("""
-    akka.event-handlers = ["akka.testkit.TestEventListener"]
-    akka.loglevel = WARNING
-    akka.io.tcp.trace-logging = off
-    spray.can.host-connector.max-retries = 4
-    spray.can.client.request-timeout = 400ms
-    spray.can.client.user-agent-header = "RequestMachine"""")
-  implicit val system = ActorSystem("DockerClientSpec", testConf)
-  import system.dispatcher
-
-
+class DockerClientSpec extends FunSuite with Matchers with ScalaFutures {
+  implicit override val patienceConfig =
+    PatienceConfig(timeout = Span(5, Seconds), interval = Span(5, Millis))
+  val serverUrl : String = "http://localhost:4243"
+  // TODO setup docker container
+  test("Get docker versions") {
+    val futureResult: Future[Version] = DockerClient.getVersion(serverUrl)
+    whenReady(futureResult) { result =>
+      result.Version.length should be > 1
+      result.GoVersion.length should be > 1
+      result.GitCommit.length should be > 1
+    }
+  }
 }

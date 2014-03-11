@@ -40,7 +40,7 @@ case class ContainerParamSize(paramValue: Boolean) extends ContainerParam {
 
 case class Port(PrivatePort: Int, PublicPort: Int, Type: String)
 case class Container(Id: String, Image :String, Command: String, Created: Int, Status: String,
-                     Ports : Option[List[Port]], SizeRw: Int, SizeRootFs: Int, Names: List[String])
+                     Ports : Option[List[Port]], SizeRw: Option[Int], SizeRootFs: Option[Int], Names: List[String])
 
 object Container {
   def getErrorReason(responseCode: Int, errorDescription: String) : String = {
@@ -68,11 +68,13 @@ case class CreateConfig(Image: String, PortSpecs: List[String], Env: List[String
 case class CreateContainerResponse(Id: String)
 
 // inspect container
+case class Port2(Port: String)
+
 case class ContainerHostConfig(Binds: Option[List[String]], ContainerIDFile: String, LxcConf: Option[List[ContainerLxcConf]],
-                               Privileged: Boolean, PortBindings: Option[List[String]], Links: Option[List[String]],
+                               Privileged: Boolean, PortBindings: Map[String, Option[String]], Links: Option[List[String]],
                                PublishAllPorts: Boolean)
 case class ContainerNetworkSettings(IPAddress: String, IPPrefixLen: Int, Gateway: String, Bridge: String,
-                                    PortMapping: Option[Map[String,Map[String, String]]])
+                                    PortMapping: Option[Map[String,Map[String, String]]], Ports: Map[String, Option[String]])
 case class ContainerState(Running: Boolean, Pid: Int, ExitCode: Int, StartedAt: String, FinishedAt: String, Ghost: Boolean)
 case class ContainerLxcConf(Key: String, Value: String)
 case class ContainerConfig(Hostname: String, User: String, Memory: Int, MemorySwap: Int, AttachStdin: Boolean,
@@ -81,7 +83,7 @@ case class ContainerConfig(Hostname: String, User: String, Memory: Int, MemorySw
                            Dns: Option[List[String]], Image: String)
 case class InspectContainerResponse(ID: String, Created: String, Path: String, Args: Option[List[String]],
                                     Config: ContainerConfig, State: ContainerState, Image: String,
-                                    NetworkSettings: ContainerNetworkSettings, SysInitPath: String,
+                                    NetworkSettings: ContainerNetworkSettings, SysInitPath: Option[String],
                                     ResolvConfPath: String, HostnamePath: String, HostsPath: String,
                                     Name: String, Volumes: Option[Map[String, String]], HostConfig: ContainerHostConfig)
 object InspectContainerResponse {
