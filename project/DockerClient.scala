@@ -5,7 +5,7 @@ import sbt._
 import Keys._
 
 object DockerClient {
-  val Version = "0.8.1"
+  val Version = "0.9.0"
 }
 
 object Versions {
