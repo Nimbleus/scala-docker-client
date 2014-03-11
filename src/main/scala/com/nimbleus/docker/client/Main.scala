@@ -84,7 +84,7 @@ object Main extends App {
 */
 
   
-  val inspectResponse = DockerClient.inspectContainer(serverUrl, "d617d18c76ca")
+  val inspectResponse = DockerClient.inspectContainer(serverUrl, "672bb1f6d369116d7291fff01b6e869f935d740f95a39f74015db8d2c97bdd2b")
   inspectResponse onComplete {
     case Success(inspectResult: InspectContainerResponse) => {
     //case Success(inspectResult: String) => {
