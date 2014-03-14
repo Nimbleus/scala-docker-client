@@ -13,7 +13,7 @@ import spray.json.DefaultJsonProtocol
 object DockerProtocol extends DefaultJsonProtocol {
   implicit val versionProtocol = jsonFormat3(Version)
   implicit val portProtocol = jsonFormat3(Port)
-  implicit val port2Protocol = jsonFormat1(Port2)
+  implicit val port2Protocol = jsonFormat2(Port2)
   implicit val containerProtocol = jsonFormat9(Container.apply)
   implicit val imageProtocol = jsonFormat5(Image)
   implicit val containerProcessProtocol = jsonFormat2(ContainerProcess)
