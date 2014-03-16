@@ -89,6 +89,7 @@ object Main extends App {
     case Success(inspectResult: InspectContainerResponse) => {
     //case Success(inspectResult: String) => {
       println(inspectResult.toString)
+      inspectResult.HostConfig.PortBindings.head.foreach ((t2) => println (t2._1 + "-->" + t2._2(0).HostIp + ":" + t2._2(0).HostPort))
     }
     case Failure(e) =>{
       println(e, "Couldn't not inspect container")
