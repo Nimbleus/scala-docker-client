@@ -58,9 +58,11 @@ object Main extends App {
   }
 */
 
+  //val force: Boolean = false
+  //println(force.toString.toLowerCase)
+
 //d36fc3a46dfa
-/*
-  val removeResponse = DockerClient.removeContainer(serverUrl, "8a8cba6a0c0c")
+/*  val removeResponse = DockerClient.removeContainer(serverUrl, "550b66e0cf86", true)
   removeResponse onComplete {
     case Success(removeResult: String) => {
       println(removeResult)
@@ -84,7 +86,7 @@ object Main extends App {
 */
 
   
-  val inspectResponse = DockerClient.inspectContainer(serverUrl, "375362668d15")
+/*  val inspectResponse = DockerClient.inspectContainer(serverUrl, "375362668d15")
   inspectResponse onComplete {
     case Success(inspectResult: InspectContainerResponse) => {
     //case Success(inspectResult: String) => {
@@ -94,7 +96,7 @@ object Main extends App {
     case Failure(e) =>{
       println(e, "Couldn't not inspect container")
     }
-  }
+  }*/
 
 /*
   val env: List[String] = List()

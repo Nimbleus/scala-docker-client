@@ -90,10 +90,10 @@ object DockerClient {
     result.future // return the future
   }
 
-  def removeContainer(serverUrl: String, containerId: String) : Future[String] = {
+  def removeContainer(serverUrl: String, containerId: String, force: Boolean = false) : Future[String] = {
     val result = Promise[String]
     val pipeline = sendReceive
-    val startResponse = pipeline(Delete(serverUrl + "/containers/" + containerId + "?v=1"))
+    val startResponse = pipeline(Delete(serverUrl + "/containers/" + containerId + "?v=1&force="+ force.toString.toLowerCase()))
     startResponse onComplete {
       case Success(response: HttpResponse) => {
         response.status.intValue match {
