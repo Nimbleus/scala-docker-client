@@ -70,10 +70,10 @@ case class CreateContainerResponse(Id: String)
 // inspect container
 case class Port2(HostIp: String, HostPort: String)
 case class ContainerHostConfig(Binds: Option[List[String]], ContainerIDFile: String, LxcConf: Option[List[ContainerLxcConf]],
-                               Privileged: Boolean, PortBindings: Option[Map[String, List[Port2]]], Links: Option[List[String]],
+                               Privileged: Boolean, PortBindings: Option[Map[String, Option[List[Port2]]]], Links: Option[List[String]],
                                PublishAllPorts: Boolean)
 case class ContainerNetworkSettings(IPAddress: String, IPPrefixLen: Int, Gateway: String, Bridge: String,
-                                    PortMapping: Option[Map[String,Map[String, String]]], Ports: Option[Map[String, List[Port2]]])
+                                    PortMapping: Option[Map[String,Map[String, String]]], Ports: Option[Map[String, Option[List[Port2]]]])
 case class ContainerState(Running: Boolean, Pid: Int, ExitCode: Int, StartedAt: String, FinishedAt: String, Ghost: Boolean)
 case class ContainerLxcConf(Key: String, Value: String)
 case class ContainerConfig(Hostname: String, User: String, Memory: Int, MemorySwap: Int, AttachStdin: Boolean,
