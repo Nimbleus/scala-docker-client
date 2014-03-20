@@ -118,8 +118,9 @@ object DockerClient {
   def listContainers(serverUrl: String, args:ContainerParam*) : Future[List[Container]] = {
     // parse the parameters if they exist
     val url = if (args.size > 0){
-      serverUrl + "/containers/json?" + args.map((i: ContainerParam) => i.field + (if(i.value.nonEmpty){i.value.get}else{""})).mkString("&")
+      serverUrl + "/containers/json?" + args.map((i: ContainerParam) => i.field + "=" + (if(i.value.nonEmpty){i.value.get}else{""})).mkString("&")
     } else {serverUrl + "/containers/json"}
+    println(url)
     // parse the parameter list
     val pipeline = sendReceive ~> unmarshal[List[Container]]
     pipeline(Get(url))
