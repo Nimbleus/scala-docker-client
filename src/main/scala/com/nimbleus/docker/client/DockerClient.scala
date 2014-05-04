@@ -49,8 +49,6 @@ object DockerClient {
     if (name.isDefined) {
       postUrl = postUrl + "?name=" + name.get
     }
-    println(postUrl)
-    println(containerConfig.toJson.prettyPrint)
     pipe(Post(serverUrl + postUrl, containerConfig))
   }
 
