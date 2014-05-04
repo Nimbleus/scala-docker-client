@@ -49,13 +49,15 @@ object DockerClient {
     if (name.isDefined) {
       postUrl = postUrl + "?name=" + name.get
     }
+    println(postUrl)
+    println(containerConfig.toJson.prettyPrint)
     pipe(Post(serverUrl + postUrl, containerConfig))
   }
 
-  def startContainer(serverUrl: String, containerId: String) : Future[String] = {
+  def startContainer(serverUrl: String, containerId: String, startConfig: StartConfig) : Future[String] = {
     val result = Promise[String]
     val pipeline = sendReceive
-    val startResponse = pipeline(Post(serverUrl + "/containers/" + containerId + "/start"))
+    val startResponse = pipeline(Post(serverUrl + "/containers/" + containerId + "/start", startConfig))
     startResponse onComplete {
       case Success(response: HttpResponse) => {
         response.status.intValue match {

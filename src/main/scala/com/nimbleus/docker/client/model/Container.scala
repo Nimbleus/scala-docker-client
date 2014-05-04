@@ -64,7 +64,12 @@ object ContainerProcessHelper {
 }
 
 // create container support
-case class CreateConfig(Image: String, PortSpecs: List[String], Env: List[String], Cmd: List[String])
+case class HostPort(HostPort: String)
+case class StartConfig(PortBindings: Option[Map[String, List[HostPort]]] = None)
+case class DockerPortBinding(privatePort: Int, publicPort: Option[Int] = None,
+                            protocol: Option[String] = None, hostIp: Option[String] = None)
+case class CreateConfig(Image: String, PortSpecs: List[String], Env: List[String], Cmd: List[String],
+                        ExposedPorts: Option[Map[String, Option[DockerPortBinding]]] = None)
 case class CreateContainerResponse(Id: String)
 
 // inspect container

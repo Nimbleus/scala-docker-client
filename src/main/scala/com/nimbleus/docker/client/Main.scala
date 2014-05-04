@@ -4,11 +4,8 @@
 package com.nimbleus.docker.client
 
 import com.nimbleus.docker.client.model._
-import com.nimbleus.docker.client.model.Container
-import com.nimbleus.docker.client.model.Version
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
-import spray.httpx.UnsuccessfulResponseException
 import ExecutionContext.Implicits.global
 
 /**
@@ -58,7 +55,7 @@ object Main extends App {
     case Failure(error) =>
       println(error, "Couldn't retrieve version")
   }
-*/
+/**/
 
   val p1: ContainerParam = ContainerParamAll(true)
   val containerResponse = DockerClient.listContainers(serverUrl, p1)
@@ -86,7 +83,7 @@ object Main extends App {
     case Failure(e) =>{
       println(e, "Couldn't list containers")
     }
-  }
+  }*/
 
   //val force: Boolean = false
   //println(force.toString.toLowerCase)
@@ -129,17 +126,33 @@ object Main extends App {
   }*/
 
 /*
-  val env: List[String] = List()
-  val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo Hello world; sleep 1; done")
-  val ports: List[String] = List()
+  val env: List[String] = List("AWS_ACCESS_KEY=" + settings.awsKey, "AWS_SECRET_KEY=" + settings.awsSecret,
+    "NACREOUS_PACKAGE=" + nodePackageName, "NACREOUS_ARCHIVE=" + nodeArchive,
+    "SEED_NODES=" + formatSeedNodes(seedNodes).mkString(" "),
+    "PROPS=" + formatProperties(properties).mkString(" "))
+  val cmd: List[String] = List()
+  // bind container to port 80 and inspect the container to get the bound port in port bindings
+  // PortBindings":{"8080/tcp":[{"HostIp":"0.0.0.0","HostPort":"49153"}]
+  val ports: List[String] = List("80")
+*/
 
-  val config = CreateConfig("ubuntu", ports, env, cmd)
+  val env: List[String] = List("AWS_ACCESS_KEY=AKIAJXWTFZM6XTENUK2Q", "AWS_SECRET_KEY=wfZ4fndWPcxujwFDF7CninBLuUDBQqkebZTQoGsr",
+    "NACREOUS_PACKAGE=nacreous-sample-web-app", "NACREOUS_ARCHIVE=nacreous-sample-web-app.jar")
+  val cmd: List[String] = List()
+  val ports: List[String] = List()
+  val exposedPort = DockerPortBinding(80)
+  val config = CreateConfig("d3ff65e8d6c", ports, env, cmd, Some(Map("80/tcp" -> None)))
+  //val config = CreateConfig("ubuntu", ports, env, cmd, Some(Map("80/tcp" -> exposedPort)))
 
   val createResponse = DockerClient.createContainer(serverUrl, config, Some("TEST-CONTAINER"))
   createResponse onComplete {
     case Success(result: CreateContainerResponse) => {
       println("created container with id => " + result.Id)
-      val startResponse = DockerClient.startContainer(serverUrl, result.Id)
+
+      val port = HostPort("")
+      val sc = StartConfig(Some(Map("80/tcp" -> List(port))))
+
+      val startResponse = DockerClient.startContainer(serverUrl, result.Id, sc)
       startResponse onComplete {
         case Success(startResult: String) => {
           println(startResult)
@@ -153,7 +166,6 @@ object Main extends App {
       println(e, "Couldn't not create container")
     }
   }
-*/
 /*
   val versionResponse = DockerClient.getVersion(serverUrl)
   versionResponse onComplete {
