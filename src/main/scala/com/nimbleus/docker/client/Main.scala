@@ -113,7 +113,7 @@ object Main extends App {
 */
 
   
-/*  val inspectResponse = DockerClient.inspectContainer(serverUrl, "375362668d15")
+/*  val inspectResponse = DockerClient.inspectContainer(serverUrl, "85470ac0fb8e")
   inspectResponse onComplete {
     case Success(inspectResult: InspectContainerResponse) => {
     //case Success(inspectResult: String) => {
@@ -136,7 +136,7 @@ object Main extends App {
   val ports: List[String] = List("80")
 */
 
-  val env: List[String] = List("AWS_ACCESS_KEY=AKIAJXWTFZM6XTENUK2Q", "AWS_SECRET_KEY=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",
+/*  val env: List[String] = List("AWS_ACCESS_KEY=AKIAJXWTFZM6XTENUK2Q", "AWS_SECRET_KEY=wfZ4fndWPcxujwFDF7CninBLuUDBQqkebZTQoGsr",
     "NACREOUS_PACKAGE=nacreous-sample-web-app", "NACREOUS_ARCHIVE=nacreous-sample-web-app.jar")
   val cmd: List[String] = List()
   val ports: List[String] = List()
@@ -165,7 +165,7 @@ object Main extends App {
     case Failure(e) =>{
       println(e, "Couldn't not create container")
     }
-  }
+  }*/
 /*
   val versionResponse = DockerClient.getVersion(serverUrl)
   versionResponse onComplete {
