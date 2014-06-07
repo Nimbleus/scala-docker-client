@@ -85,7 +85,7 @@ case class ContainerConfig(Hostname: String, User: String, Memory: Int, MemorySw
                            AttachStdout: Boolean, AttachStderr: Boolean, PortSpecs: Option[List[String]], Tty: Boolean,
                            OpenStdin: Boolean, StdinOnce: Boolean, Env: Option[List[String]], Cmd: Option[List[String]],
                            Dns: Option[List[String]], Image: String)
-case class InspectContainerResponse(ID: String, Created: String, Path: String, Args: Option[List[String]],
+case class InspectContainerResponse(Id: String, Created: String, Path: String, Args: Option[List[String]],
                                     Config: ContainerConfig, State: ContainerState, Image: String,
                                     NetworkSettings: ContainerNetworkSettings, SysInitPath: Option[String],
                                     ResolvConfPath: String, HostnamePath: String, HostsPath: String,
