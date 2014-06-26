@@ -5,12 +5,12 @@ import sbt._
 import Keys._
 
 object DockerClient {
-  val Version = "0.9.9"
+  val Version = "0.10.0"
 }
 
 object Versions {
-  val akka         = "2.2.3"
-  val sprayIo      = "1.2-20131004"
+  val akka         = "2.3.3"
+  val sprayIo      = "1.3.1"
   val sprayJson    = "1.2.3"
   val ScalaTest    = "2.1.0"
 }

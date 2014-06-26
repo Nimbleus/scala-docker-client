@@ -7,6 +7,8 @@ import com.nimbleus.docker.client.model._
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 import ExecutionContext.Implicits.global
+import spray.httpx.UnsuccessfulResponseException
+
 
 /**
  * This represents the main entry point.
@@ -46,44 +48,43 @@ object Main extends App {
     }
   }
 */
-/*
-  val versionResponse = DockerClient.getVersion(serverUrl)
+
+/*  val versionResponse = DockerClient.getVersion(serverUrl)
   versionResponse onComplete {
     case Success(result: Version) => {
       println("version => " + result.toString)
     }
     case Failure(error) =>
       println(error, "Couldn't retrieve version")
-  }
-/**/
-
-  val p1: ContainerParam = ContainerParamAll(true)
-  val containerResponse = DockerClient.listContainers(serverUrl, p1)
-  containerResponse onComplete {
-    case Success(result: List[Container]) => {
-      println("containers => " + result.toString)
-      for(c <- result){
-        val containerProcessorResponse = DockerClient.getContainerProcesses(serverUrl, c.Id)
-        containerProcessorResponse onComplete {
-          case Success(result: ContainerProcess) => {
-            println("container processes => " + result.toString)
-          }
-          case Failure(error: UnsuccessfulResponseException) => {
-            println(ContainerProcessHelper.getErrorReason(error.response.status.intValue, error.response.message.toString))
-          }
-          case Failure(e) => {
-            println(e, "Couldn't list container processes")
-          }
-        }
-      }
-    }
-    case Failure(error: UnsuccessfulResponseException) => {
-      println(Container.getErrorReason(error.response.status.intValue, error.response.message.toString))
-    }
-    case Failure(e) =>{
-      println(e, "Couldn't list containers")
-    }
   }*/
+
+   val p1: ContainerParam = ContainerParamAll(false)
+   val containerResponse = DockerClient.listContainers(serverUrl, p1)
+   containerResponse onComplete {
+     case Success(result: List[Container]) => {
+       println("containers => " + result.toString)
+       for(c <- result){
+         val containerProcessorResponse = DockerClient.getContainerProcesses(serverUrl, c.Id)
+         containerProcessorResponse onComplete {
+           case Success(result: ContainerProcess) => {
+             println("container processes => " + result.toString)
+           }
+           case Failure(error: UnsuccessfulResponseException) => {
+             println(Container.getErrorReason(error.response.status.intValue, error.response.message.toString))
+           }
+           case Failure(e) => {
+             println(e, "Couldn't list container processes")
+           }
+         }
+       }
+     }
+     case Failure(error: UnsuccessfulResponseException) => {
+       println(Container.getErrorReason(error.response.status.intValue, error.response.message.toString))
+     }
+     case Failure(e) =>{
+       println(e, "Couldn't list containers")
+     }
+   }
 
   //val force: Boolean = false
   //println(force.toString.toLowerCase)
@@ -116,9 +117,9 @@ object Main extends App {
   val inspectResponse = DockerClient.inspectContainer(serverUrl, "804dfff9faf2")
   inspectResponse onComplete {
     case Success(inspectResult: InspectContainerResponse) => {
-    //case Success(inspectResult: String) => {
+      //case Success(inspectResult: String) => {
       println(inspectResult.toString)
-     // inspectResult.HostConfig.PortBindings.head.foreach ((t2) => println (t2._1 + "-->" + t2._2(0).HostIp + ":" + t2._2(0).HostPort))
+      // inspectResult.HostConfig.PortBindings.head.foreach ((t2) => println (t2._1 + "-->" + t2._2(0).HostIp + ":" + t2._2(0).HostPort))
     }
     case Failure(e) =>{
       println(e, "Couldn't not inspect container")
