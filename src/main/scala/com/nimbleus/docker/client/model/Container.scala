@@ -41,7 +41,6 @@ case class ContainerParamSize(paramValue: Boolean) extends ContainerParam {
 case class Port(PrivatePort: Int, PublicPort: Int, Type: String)
 case class Container(Id: String, Image :String, Command: String, Created: Int, Status: String,
                      Ports : Option[List[Port]], SizeRw: Option[Int], SizeRootFs: Option[Int], Names: List[String])
-
 object Container {
   def getErrorReason(responseCode: Int, errorDescription: String) : String = {
     responseCode match {

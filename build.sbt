@@ -4,7 +4,9 @@ organization := "com.nimbleus"
 
 version in ThisBuild := DockerClient.Version
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.5"
+
+crossScalaVersions  := Seq("2.11.5", "2.10.0")
 
 mainClass := Some("com.nimbleus.docker.client.Main")
 
@@ -33,6 +35,7 @@ libraryDependencies ++= Seq(
   Compile.sprayJson,
   Compile.akkaKernel,
   Compile.akkaActor,
+  Compile.akkaTestKit,
   Compile.scalaTest
 )
 
