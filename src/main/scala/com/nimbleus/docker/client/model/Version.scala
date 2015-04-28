@@ -3,11 +3,8 @@
  */
 package com.nimbleus.docker.client.model
 
-/**
- * This model represents a the Docker versions.
- * User: cstewart
- */
-case class Version(Version: String, GitCommit: String, GoVersion: String)
+case class Version(Version: String, Os: String, KernelVersion: String,
+                   GitCommit: String, GoVersion: String, Arch: String, ApiVersion: String)
 
 object versionHelper {
   def getErrorReason(responseCode: Int, errorDescription: String) : String = {
@@ -17,3 +14,4 @@ object versionHelper {
     }
   }
 }
+

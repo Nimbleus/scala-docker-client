@@ -3,10 +3,6 @@
  */
 package com.nimbleus.docker.client.model
 
-/**
- * This model represents a docker image.
- * User: cstewart
- */
 case class Image(Id: String, RepoTags: List[String], Created: Int, Size: Int, VirtualSize: Int)
 
 object ImageHelper {
@@ -17,3 +13,4 @@ object ImageHelper {
     }
   }
 }
+

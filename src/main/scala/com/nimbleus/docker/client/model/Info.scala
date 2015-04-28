@@ -3,13 +3,10 @@
  */
 package com.nimbleus.docker.client.model
 
-/**
- * This model represents a docker system info.
- * User: cstewart
- */
-case class Info(Debug: Boolean, Containers: Int, Images: Int, Driver: String, DriverStatus: List[List[String]],
-                NFd: Int, NGoroutines: Int, MemoryLimit: Boolean, SwapLimit: Boolean, IPv4Forwarding: Boolean,
-                LXCVersion: String, NEventsListener: Int, KernelVersion: String, IndexServerAddress: String)
+case class Info(OperatingSystem: String, Containers: Int, Images: Int, Driver: String,
+                KernelVersion: String, NCPU: Int, MemTotal: Int, Name: String,
+                ID: String, Debug: Int, InitPath: String, MemoryLimit: Int,
+                DockerRootDir: String, ExecutionDriver: String, Labels: Option[List[Map[String, String]]])
 object InfoHelper {
   def getErrorReason(responseCode: Int, errorDescription: String) : String = {
     responseCode match {
@@ -18,3 +15,4 @@ object InfoHelper {
     }
   }
 }
+
