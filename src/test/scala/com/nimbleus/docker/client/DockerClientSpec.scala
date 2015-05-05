@@ -72,10 +72,10 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     "create a container" in {
       val env: List[String] = List()
       val cmd: List[String] = List()
-      val ports: List[String] = List()
+      val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
       val exposedPort = DockerPortBinding(80)
       // Runs the basic hello world container and exists
-      val config = CreateConfig("91c95931e552", ports, env, cmd, Some(Map("80/tcp" -> None)))
+      val config = CreateConfig("91c95931e552", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
       val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
       whenReady(futureResult) { result =>
         result.Id.length should be > 0
@@ -91,10 +91,10 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     "start container" in {
       val env: List[String] = List()
       val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-      val ports: List[String] = List()
+      val labels: Map[String,String] = Map()
       val exposedPort = DockerPortBinding(80)
       // Runs the basic hello world container and exists
-      val config = CreateConfig("b7cf8f0d9e82", ports, env, cmd, Some(Map("80/tcp" -> None)))
+      val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
       val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
       whenReady(futureResult) { result =>
         result.Id.length should be > 0
@@ -114,10 +114,10 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     "stop container" in {
       val env: List[String] = List()
       val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-      val ports: List[String] = List()
+      val labels: Map[String,String] = Map()
       val exposedPort = DockerPortBinding(80)
       // Runs the basic hello world container and exists
-      val config = CreateConfig("b7cf8f0d9e82", ports, env, cmd, Some(Map("80/tcp" -> None)))
+      val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
       val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
       whenReady(futureResult) { result =>
         result.Id.length should be > 0
@@ -142,10 +142,10 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     "restart container" in {
       val env: List[String] = List()
       val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-      val ports: List[String] = List()
+      val labels: Map[String,String] = Map()
       val exposedPort = DockerPortBinding(80)
       // Runs the basic hello world container and exists
-      val config = CreateConfig("b7cf8f0d9e82", ports, env, cmd, Some(Map("80/tcp" -> None)))
+      val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
       val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
       whenReady(futureResult) { result =>
         result.Id.length should be > 0
@@ -170,10 +170,10 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     "kill container" in {
       val env: List[String] = List()
       val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-      val ports: List[String] = List()
+      val labels: Map[String,String] = Map()
       val exposedPort = DockerPortBinding(80)
       // Runs the basic hello world container and exists
-      val config = CreateConfig("b7cf8f0d9e82", ports, env, cmd, Some(Map("80/tcp" -> None)))
+      val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
       val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
       whenReady(futureResult) { result =>
         result.Id.length should be > 0
@@ -194,10 +194,10 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     "remove container" in {
       val env: List[String] = List()
       val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-      val ports: List[String] = List()
+      val labels: Map[String,String] = Map()
       val exposedPort = DockerPortBinding(80)
       // Runs the basic hello world container and exists
-      val config = CreateConfig("b7cf8f0d9e82", ports, env, cmd, Some(Map("80/tcp" -> None)))
+      val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
       val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
       whenReady(futureResult) { result =>
         result.Id.length should be > 0
@@ -213,10 +213,10 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     "inspect container" in {
       val env: List[String] = List()
       val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-      val ports: List[String] = List()
+      val labels: Map[String,String] = Map("NETWORK_SEED"->"true")
       val exposedPort = DockerPortBinding(80)
       // Runs the basic hello world container and exists
-      val config = CreateConfig("b7cf8f0d9e82", ports, env, cmd, Some(Map("80/tcp" -> None)))
+      val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
       val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
       whenReady(futureResult) { result =>
         result.Id.length should be > 0

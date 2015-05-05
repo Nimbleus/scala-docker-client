@@ -67,7 +67,7 @@ case class HostPort(HostPort: String)
 case class StartConfig(PortBindings: Option[Map[String, List[HostPort]]] = None)
 case class DockerPortBinding(privatePort: Int, publicPort: Option[Int] = None,
                             protocol: Option[String] = None, hostIp: Option[String] = None)
-case class CreateConfig(Image: String, PortSpecs: List[String], Env: List[String], Cmd: List[String],
+case class CreateConfig(Image: String, Labels: Option[Map[String,String]], Env: List[String], Cmd: List[String],
                         ExposedPorts: Option[Map[String, Option[DockerPortBinding]]] = None)
 case class CreateContainerResponse(Id: String)
 
@@ -83,7 +83,7 @@ case class ContainerLxcConf(Key: String, Value: String)
 case class ContainerConfig(Hostname: String, User: String, Memory: Int, MemorySwap: Int, AttachStdin: Boolean,
                            AttachStdout: Boolean, AttachStderr: Boolean, PortSpecs: Option[List[String]], Tty: Boolean,
                            OpenStdin: Boolean, StdinOnce: Boolean, Env: Option[List[String]], Cmd: Option[List[String]],
-                           Dns: Option[List[String]], Image: String)
+                           Dns: Option[List[String]], Labels: Option[Map[String,String]])
 case class InspectContainerResponse(Id: String, Created: String, Path: String, Args: Option[List[String]],
                                     Config: ContainerConfig, State: ContainerState, Image: String,
                                     NetworkSettings: ContainerNetworkSettings, SysInitPath: Option[String],
