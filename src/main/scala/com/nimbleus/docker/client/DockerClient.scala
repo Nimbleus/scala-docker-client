@@ -13,7 +13,7 @@ import scala.util.{Failure, Success}
 import spray.http.HttpResponse
 
 object DockerClient {
-
+  private val AUTH_CONFIG_HEADER = "X-Registry-Auth"
   import DockerProtocol._  // this is required to be in scope
   import SprayJsonSupport._ // this is required to be in scope
 
@@ -165,5 +165,28 @@ object DockerClient {
     import system.dispatcher
     val pipeline = sendReceive ~> unmarshal[List[Image]]
     pipeline(Get(serverUrl + "/images/json"))
+  }
+
+  def createImage(serverUrl: String, image: String, tag: String, authConfig: AuthConfig)(implicit system: ActorSystem) : Future[Boolean] = {
+    import system.dispatcher
+    val result = Promise[Boolean]
+    val authEncoded = authConfig.base64encode
+    val pipeline = sendReceive
+    pipeline(Post(serverUrl + "/images/create?fromImage=" + image + "&tag=" + tag) ~> addHeader(AUTH_CONFIG_HEADER, authEncoded)) onComplete {
+      case Success(response: HttpResponse) => {
+        response.status.intValue match {
+          case 200 => {
+            result.success(true)
+          }
+          case 500 => {
+            result.success(false)
+          }
+        }
+      }
+      case Failure(e) => {
+        result.failure(e)
+      }
+    }
+    result.future // return the future
   }
 }

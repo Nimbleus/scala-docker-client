@@ -30,13 +30,16 @@ resolvers += Resolvers.sprayNightly
 
 resolvers += Resolvers.typeSafe
 
+resolvers += Resolvers.softprops
+
 libraryDependencies ++= Seq(
   Compile.sprayClient,
   Compile.sprayJson,
   Compile.akkaKernel,
   Compile.akkaActor,
   Compile.akkaTestKit,
-  Compile.scalaTest
+  Compile.scalaTest,
+  Compile.softprops
 )
 
 
