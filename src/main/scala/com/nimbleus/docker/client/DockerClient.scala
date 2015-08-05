@@ -42,13 +42,19 @@ object DockerClient {
     pipe(Post(serverUrl + postUrl, containerConfig))
   }
 
-  def createContainer(serverUrl: String, image: String, tag: String, authConfig: AuthConfig, containerConfig: CreateConfig, name: Option[String])(implicit system: ActorSystem) : Future[CreateContainerResponse] = {
+  def createContainer(serverUrl: String, authConfig: AuthConfig, containerConfig: CreateConfig, name: Option[String])(implicit system: ActorSystem) : Future[CreateContainerResponse] = {
     import system.dispatcher
-    implicit val requestTimeout = Timeout(60 seconds)
+    implicit val requestTimeout = Timeout(120 seconds)
     val result = Promise[CreateContainerResponse]
     val authEncoded = authConfig.base64encode
+
+    //extract the version tag if it exists
+    val versionStart = containerConfig.Image.lastIndexOf(":")
+    val version : Option[String] = if (versionStart != -1) { Some("&tag=" + containerConfig.Image.substring(versionStart + 1)) } else { None }
+    val image = if (versionStart == -1) { containerConfig.Image } else { containerConfig.Image.substring(0, versionStart) }
+
     val pipeline = sendReceive
-    pipeline(Post(serverUrl + "/images/create?fromImage=" + image + "&tag=" + tag) ~> addHeader(AUTH_CONFIG_HEADER, authEncoded)) onComplete {
+    pipeline(Post(serverUrl + "/images/create?fromImage=" + image + version.getOrElse("")) ~> addHeader(AUTH_CONFIG_HEADER, authEncoded)) onComplete {
       case Success(response: HttpResponse) => {
         response.status.intValue match {
           case 200 => {

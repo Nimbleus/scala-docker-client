@@ -50,9 +50,8 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
     val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
     val exposedPort = DockerPortBinding(9000)
     // Runs the basic hello world container and exists
-    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.8", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-    val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, "nimbleusadmin/akka-cluster-seed-node",
-      "2.3.10.8", AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"), config, None)
+    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.4", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
+    val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl,  AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"), config, None)
     whenReady(futureResult, timeout(Span(60, Seconds))) { result =>
       result.Id.length should be > 0
       val startResponse = DockerClient.startContainer(serverUrl, result.Id)
