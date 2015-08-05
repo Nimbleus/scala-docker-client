@@ -1,6 +1,7 @@
 package com.nimbleus.docker.client
 
 import akka.actor.ActorSystem
+import akka.util.Timeout
 import com.nimbleus.docker.client.model._
 import com.nimbleus.docker.client.model.Container
 import scala.concurrent.{Promise, Future}
@@ -11,6 +12,7 @@ import com.nimbleus.docker.client.model.Version
 import com.nimbleus.docker.client.model.Image
 import scala.util.{Failure, Success}
 import spray.http.HttpResponse
+import scala.concurrent.duration._
 
 object DockerClient {
   private val AUTH_CONFIG_HEADER = "X-Registry-Auth"
@@ -38,6 +40,43 @@ object DockerClient {
       postUrl = postUrl + "?name=" + name.get
     }
     pipe(Post(serverUrl + postUrl, containerConfig))
+  }
+
+  def createContainer(serverUrl: String, image: String, tag: String, authConfig: AuthConfig, containerConfig: CreateConfig, name: Option[String])(implicit system: ActorSystem) : Future[CreateContainerResponse] = {
+    import system.dispatcher
+    implicit val requestTimeout = Timeout(60 seconds)
+    val result = Promise[CreateContainerResponse]
+    val authEncoded = authConfig.base64encode
+    val pipeline = sendReceive
+    pipeline(Post(serverUrl + "/images/create?fromImage=" + image + "&tag=" + tag) ~> addHeader(AUTH_CONFIG_HEADER, authEncoded)) onComplete {
+      case Success(response: HttpResponse) => {
+        response.status.intValue match {
+          case 200 => {
+            // the image was present or downloaded
+            val createPipe = sendReceive ~> unmarshal[CreateContainerResponse]
+            var postUrl = "/containers/create"
+            if (name.isDefined) {
+              postUrl = postUrl + "?name=" + name.get
+            }
+            createPipe(Post(serverUrl + postUrl, containerConfig)) onComplete {
+              case Success(response: CreateContainerResponse) => {
+                result.success(response)
+              }
+              case Failure(e1) => {
+                result.failure(e1)
+              }
+            }
+          }
+          case 500 => {
+            result.failure(new Exception("Failed to provision image : " + image))
+          }
+        }
+      }
+      case Failure(e2) => {
+        result.failure(e2)
+      }
+    }
+    result.future
   }
 
   def startContainer(serverUrl: String, containerId: String)(implicit system: ActorSystem) : Future[String] = {

@@ -39,16 +39,40 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
   val port = system.settings.config.getInt("docker-remote-api-port")
 
   val serverUrl : String = s"http://$host:$port"
-  /*
-    "The scala docker client library" should {
-      "pull remote image" in {
-        val futureResult: Future[Boolean] = DockerClient.createImage(serverUrl, "nimbleusadmin/akka-cluster-seed-node",
-          "2.3.10.6", AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"))
-        whenReady(futureResult, timeout(Span(60, Seconds))) { result =>
-          result should be (true)
-        }
-      }
 
+"The scala docker client library" should {
+
+  //createContainer(serverUrl: String, image: String, tag: String, authConfig: AuthConfig,
+  // containerConfig: CreateConfig, name: Option[String])(implicit system: ActorSystem) : Future[CreateContainerResponse]
+/*  "start container" in {
+    val env: List[String] = List()
+    val cmd: List[String] = List()
+    val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
+    val exposedPort = DockerPortBinding(9000)
+    // Runs the basic hello world container and exists
+    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.8", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
+    val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, "nimbleusadmin/akka-cluster-seed-node",
+      "2.3.10.8", AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"), config, None)
+    whenReady(futureResult, timeout(Span(60, Seconds))) { result =>
+      result.Id.length should be > 0
+      val startResponse = DockerClient.startContainer(serverUrl, result.Id)
+      whenReady(startResponse) { startRes =>
+        startRes.length should be > 0
+        println(startRes)
+      }
+    }
+  }*/
+
+
+/*  "pull remote image" in {
+    val futureResult: Future[Boolean] = DockerClient.createImage(serverUrl, "nimbleusadmin/akka-cluster-seed-node",
+      "2.3.10.8", AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"))
+    whenReady(futureResult, timeout(Span(60, Seconds))) { result =>
+      result should be (true)
+    }
+  }*/
+
+  /*
       "get the current version" in {
         val futureResult: Future[Version] = DockerClient.getVersion(serverUrl)
         whenReady(futureResult) { result =>
@@ -77,13 +101,14 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
         }
       }
 
+
       "create a container" in {
         val env: List[String] = List()
         val cmd: List[String] = List()
         val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
-        val exposedPort = DockerPortBinding(80)
+        val exposedPort = DockerPortBinding(9000)
         // Runs the basic hello world container and exists
-        val config = CreateConfig("91c95931e552", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
+        val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.7", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
         val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
         whenReady(futureResult) { result =>
           result.Id.length should be > 0
