@@ -8,6 +8,20 @@ trait ContainerParam {
   def value: Option[Any]
 }
 
+object WeaveContainer {
+  //8c3ad03c30d3 5a:21:3d:fb:b2:a2 10.2.0.1/16
+  def parse(data: Array[String]): List[WeaveContainer] = {
+    data.map { line =>
+      val tokens = line.split(" ")
+      val containerId = tokens(0)
+      val ip4 = if (tokens.length >= 3) { Some(tokens(2).substring(0, tokens(2).lastIndexOf("/"))) } else { None }
+      val ip6 = if (tokens.length >= 2) { Some(tokens(1)) } else { None }
+      WeaveContainer(containerId, ip4, ip6)
+    }.toList
+  }
+}
+case class WeaveContainer(containerId: String, ipV4: Option[String], ipV6: Option[String])
+
 // 1/True/true or 0/False/false, Show all containers. Only running containers are shown by default
 case class ContainerParamAll(paramValue: Boolean) extends ContainerParam {
   val field = "all"

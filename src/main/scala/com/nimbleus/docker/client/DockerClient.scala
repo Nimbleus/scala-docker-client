@@ -13,6 +13,7 @@ import com.nimbleus.docker.client.model.Image
 import scala.util.{Failure, Success}
 import spray.http.HttpResponse
 import scala.concurrent.duration._
+import sys.process._
 
 object DockerClient {
   private val AUTH_CONFIG_HEADER = "X-Registry-Auth"
@@ -231,6 +232,30 @@ object DockerClient {
       case Failure(e) => {
         result.failure(e)
       }
+    }
+    result.future // return the future
+  }
+
+  def listWeaveContainers(serverUrl: String)(implicit system: ActorSystem) : Future[List[WeaveContainer]] = {
+    import system.dispatcher
+    val result = Promise[List[WeaveContainer]]
+    try {
+      val data = "weave ps" !!
+
+      //8c3ad03c30d3 5a:21:3d:fb:b2:a2 10.2.0.1/16
+      if (data.length > 0) {
+        if (!data.contains("command not found")) {
+          val dataArr = data.split("\n")
+          result.success(WeaveContainer.parse(dataArr))
+        } else {
+          result.success(List.empty[WeaveContainer])
+        }
+      } else {
+        result.success(List.empty[WeaveContainer])
+      }
+    }
+    catch {
+      case e: java.io.IOException => { result.success(List.empty[WeaveContainer]) }
     }
     result.future // return the future
   }

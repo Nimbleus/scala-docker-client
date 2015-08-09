@@ -41,7 +41,13 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
   val serverUrl : String = s"http://$host:$port"
 
 "The scala docker client library" should {
-
+/*  "get weave containers" in {
+    val futureResult: Future[List[WeaveContainer]] = DockerClient.listWeaveContainers(serverUrl)
+    whenReady(futureResult, timeout(Span(10, Seconds))) { result =>
+      val test: List[WeaveContainer] = result
+      result should be(List.empty)
+    }
+  }*/
   //createContainer(serverUrl: String, image: String, tag: String, authConfig: AuthConfig,
   // containerConfig: CreateConfig, name: Option[String])(implicit system: ActorSystem) : Future[CreateContainerResponse]
 /*  "start container" in {

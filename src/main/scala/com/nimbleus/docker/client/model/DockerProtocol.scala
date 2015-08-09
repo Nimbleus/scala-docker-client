@@ -24,6 +24,7 @@ object DockerProtocol extends DefaultJsonProtocol {
   implicit val createContainerNetworkSettingsProtocol = jsonFormat6(ContainerNetworkSettings)
   implicit val createContainerHostConfigProtocol = jsonFormat7(ContainerHostConfig)
   implicit val createInspectContainerResponseProtocol = jsonFormat15(InspectContainerResponse.apply)
+  implicit val weaveContainerProtocol = jsonFormat3(WeaveContainer.apply)
 }
 
 
