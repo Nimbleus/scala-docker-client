@@ -93,15 +93,17 @@ case class CreateContainerResponse(Id: String)
 case class Port2(HostIp: String, HostPort: String)
 case class ContainerHostConfig(Binds: Option[List[String]], ContainerIDFile: String, LxcConf: Option[List[ContainerLxcConf]],
                                Privileged: Boolean, PortBindings: Option[Map[String, Option[List[Port2]]]], Links: Option[List[String]],
-                               PublishAllPorts: Boolean)
+                               PublishAllPorts: Boolean, Memory: Int, MemorySwap: Int, CpuShares: Int, CpuPeriod: Int,
+                               CpusetCpus: String, CpusetMems: String, CpuQuota: Int, BlkioWeight: Int)
 case class ContainerNetworkSettings(IPAddress: String, IPPrefixLen: Int, Gateway: String, Bridge: String,
                                     PortMapping: Option[Map[String,Map[String, String]]], Ports: Option[Map[String, Option[List[Port2]]]])
-case class ContainerState(Running: Boolean, Pid: Int, ExitCode: Int, StartedAt: String, FinishedAt: String, Ghost: Option[Boolean])
+case class ContainerState(Running: Boolean, Pid: Int, ExitCode: Int, StartedAt: String, FinishedAt: String, Paused: Boolean, Restarting: Boolean,
+                          OOMKilled: Boolean, Dead: Boolean, Error: String)
 case class ContainerLxcConf(Key: String, Value: String)
-case class ContainerConfig(Hostname: String, User: String, Memory: Int, MemorySwap: Int, AttachStdin: Boolean,
-                           AttachStdout: Boolean, AttachStderr: Boolean, PortSpecs: Option[List[String]], Tty: Boolean,
+case class ContainerConfig(Hostname: String, User: String, AttachStdin: Boolean,
+                           AttachStdout: Boolean, AttachStderr: Boolean, Tty: Boolean,
                            OpenStdin: Boolean, StdinOnce: Boolean, Env: Option[List[String]], Cmd: Option[List[String]],
-                           Dns: Option[List[String]], Labels: Option[Map[String,String]])
+                           Labels: Option[Map[String,String]])
 case class InspectContainerResponse(Id: String, Created: String, Path: String, Args: Option[List[String]],
                                     Config: ContainerConfig, State: ContainerState, Image: String,
                                     NetworkSettings: ContainerNetworkSettings, SysInitPath: Option[String],

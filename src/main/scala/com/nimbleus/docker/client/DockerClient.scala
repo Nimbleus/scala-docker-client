@@ -236,7 +236,7 @@ object DockerClient {
     result.future // return the future
   }
 
-  def listWeaveContainers(serverUrl: String)(implicit system: ActorSystem) : Future[List[WeaveContainer]] = {
+  def listWeaveContainers(implicit system: ActorSystem) : Future[List[WeaveContainer]] = {
     import system.dispatcher
     val result = Promise[List[WeaveContainer]]
     try {
@@ -255,7 +255,7 @@ object DockerClient {
       }
     }
     catch {
-      case e: java.io.IOException => { result.success(List.empty[WeaveContainer]) }
+      case e: java.io.IOException => { result.failure(e) }
     }
     result.future // return the future
   }

@@ -40,7 +40,40 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
 
   val serverUrl : String = s"http://$host:$port"
 
+  //159.203.72.31:12375/images/create?fromImage=nimbleusadmin/akka-cluster-seed-node
+
 "The scala docker client library" should {
+
+  "inspect container" in {
+    val inspectResponse = DockerClient.inspectContainer(serverUrl, "5659880bc4e1")
+    whenReady(inspectResponse) { inspectRes =>
+      inspectRes.Id.length should be > 0
+      println(inspectRes)
+    }
+  }
+
+
+/*
+  "create a container" in {
+    val env: List[String] = List()
+    val cmd: List[String] = List()
+    val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
+    val exposedPort = DockerPortBinding(9000)
+    // Runs the basic hello world container and exists
+    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.7", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
+    val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
+    whenReady(futureResult) { result =>
+      result.Id.length should be > 0
+      println("started container with id => " + result.Id)
+      val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
+      whenReady(removeResponse) { removeRes =>
+        removeRes.length should be > 0
+        println(removeRes)
+      }
+    }
+  }
+*/
+
 /*  "get weave containers" in {
     val futureResult: Future[List[WeaveContainer]] = DockerClient.listWeaveContainers(serverUrl)
     whenReady(futureResult, timeout(Span(10, Seconds))) { result =>
@@ -50,13 +83,14 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
   }*/
   //createContainer(serverUrl: String, image: String, tag: String, authConfig: AuthConfig,
   // containerConfig: CreateConfig, name: Option[String])(implicit system: ActorSystem) : Future[CreateContainerResponse]
-/*  "start container" in {
+/*
+  "start container" in {
     val env: List[String] = List()
     val cmd: List[String] = List()
     val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
     val exposedPort = DockerPortBinding(9000)
     // Runs the basic hello world container and exists
-    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.4", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
+    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.8", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
     val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl,  AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"), config, None)
     whenReady(futureResult, timeout(Span(60, Seconds))) { result =>
       result.Id.length should be > 0
@@ -66,7 +100,8 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
         println(startRes)
       }
     }
-  }*/
+  }
+*/
 
 
 /*  "pull remote image" in {
