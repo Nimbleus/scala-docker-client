@@ -44,35 +44,36 @@ class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with Impli
 
 "The scala docker client library" should {
 
-  "inspect container" in {
+/*  "inspect container" in {
     val inspectResponse = DockerClient.inspectContainer(serverUrl, "5659880bc4e1")
     whenReady(inspectResponse) { inspectRes =>
       inspectRes.Id.length should be > 0
       println(inspectRes)
     }
-  }
+  }*/
 
 
-/*
   "create a container" in {
     val env: List[String] = List()
     val cmd: List[String] = List()
     val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
     val exposedPort = DockerPortBinding(9000)
     // Runs the basic hello world container and exists
-    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.7", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
+    val hostConfig = CreateHostConfig(Some(128000000), None, None, false)
+    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", Some(labels), env, cmd, Some(Map("80/tcp" -> None)), Some(hostConfig))
     val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
     whenReady(futureResult) { result =>
       result.Id.length should be > 0
       println("started container with id => " + result.Id)
+/*
       val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
       whenReady(removeResponse) { removeRes =>
         removeRes.length should be > 0
         println(removeRes)
       }
+*/
     }
   }
-*/
 
 /*  "get weave containers" in {
     val futureResult: Future[List[WeaveContainer]] = DockerClient.listWeaveContainers(serverUrl)

@@ -86,8 +86,10 @@ case class StartConfig(PortBindings: Option[Map[String, List[HostPort]]] = None)
 case class DockerPortBinding(privatePort: Int, publicPort: Option[Int] = None,
                             protocol: Option[String] = None, hostIp: Option[String] = None)
 case class CreateConfig(Image: String, Labels: Option[Map[String,String]], Env: List[String], Cmd: List[String],
-                        ExposedPorts: Option[Map[String, Option[DockerPortBinding]]] = None)
+                        ExposedPorts: Option[Map[String, Option[DockerPortBinding]]] = None,
+                        HostConfig: Option[CreateHostConfig])
 case class CreateContainerResponse(Id: String)
+case class CreateHostConfig(Memory: Option[Int], MemorySwap: Option[Int], CpuShares: Option[Int], Privileged: Boolean)
 
 // inspect container
 case class Port2(HostIp: String, HostPort: String)
