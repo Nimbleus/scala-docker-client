@@ -54,7 +54,7 @@ case class ContainerParamSize(paramValue: Boolean) extends ContainerParam {
 
 case class Port(PrivatePort: Int, PublicPort: Option[Int], Type: String)
 case class Container(Id: String, Image :String, Command: String, Created: Int, Status: String,
-                     Ports : Option[List[Port]], Names: List[String],
+                     Ports : Option[List[Port]], Names: Option[List[String]],
                      Labels: Option[Map[String,String]])
 
 // "Ports": [{"PrivatePort": 2222, "PublicPort": 3333, "Type": "tcp"}]
@@ -88,11 +88,13 @@ case class DockerPortBinding(privatePort: Int, publicPort: Option[Int] = None,
 case class CreateConfig(Image: String, Labels: Option[Map[String,String]], Env: List[String], Cmd: List[String],
                         ExposedPorts: Option[Map[String, Option[DockerPortBinding]]] = None,
                         HostConfig: Option[CreateHostConfig])
+case class CreateHostConfig(Memory: Option[Int], MemorySwap: Option[Int], CpuShares: Option[Int],
+                            Privileged: Boolean, PortBindings: Option[Map[String, List[HostPort]]] = None)
 case class CreateContainerResponse(Id: String)
-case class CreateHostConfig(Memory: Option[Int], MemorySwap: Option[Int], CpuShares: Option[Int], Privileged: Boolean)
 
 // inspect container
 case class Port2(HostIp: String, HostPort: String)
+
 case class ContainerHostConfig(Binds: Option[List[String]], ContainerIDFile: String, LxcConf: Option[List[ContainerLxcConf]],
                                Privileged: Boolean, PortBindings: Option[Map[String, Option[List[Port2]]]], Links: Option[List[String]],
                                PublishAllPorts: Boolean, Memory: Int, MemorySwap: Int, CpuShares: Int, CpuPeriod: Int,
