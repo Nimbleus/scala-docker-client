@@ -189,6 +189,46 @@ object DockerClient {
     result.future // return the future
   }
 
+  def pauseContainer(serverUrl: String, containerId: String)(implicit system: ActorSystem) : Future[String] = {
+    import system.dispatcher
+    val result = Promise[String]
+    val pipeline = sendReceive
+    val pauseResponse = pipeline(Post(serverUrl + "/containers/" + containerId + "/pause"))
+    pauseResponse onComplete {
+      case Success(response: HttpResponse) => {
+        response.status.intValue match {
+          case 204 => {result.success("paused container with id => " + containerId)}
+          case 404 => {result.success("no such container")}
+          case 500 => {result.failure(new Exception("server error"))}
+        }
+      }
+      case Failure(e) =>{
+        result.failure(e)
+      }
+    }
+    result.future // return the future
+  }
+
+  def unPauseContainer(serverUrl: String, containerId: String)(implicit system: ActorSystem) : Future[String] = {
+    import system.dispatcher
+    val result = Promise[String]
+    val pipeline = sendReceive
+    val unPauseResponse = pipeline(Post(serverUrl + "/containers/" + containerId + "/unpause"))
+    unPauseResponse onComplete {
+      case Success(response: HttpResponse) => {
+        response.status.intValue match {
+          case 204 => {result.success("unpaused container with id => " + containerId)}
+          case 404 => {result.success("no such container")}
+          case 500 => {result.failure(new Exception("server error"))}
+        }
+      }
+      case Failure(e) =>{
+        result.failure(e)
+      }
+    }
+    result.future // return the future
+  }
+
   def listContainers(serverUrl: String, args:ContainerParam *)(implicit system: ActorSystem) : Future[List[Container]] = {
     import system.dispatcher
     // parse the parameters if they exist
