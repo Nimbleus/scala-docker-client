@@ -21,7 +21,7 @@ object DockerProtocol extends DefaultJsonProtocol {
   implicit val createContainerResponseProtocol = jsonFormat1(CreateContainerResponse)
   implicit val createContainerConfigProtocol = jsonFormat11(ContainerConfig)
   implicit val createContainerLxcConfProtocol = jsonFormat2(ContainerLxcConf)
-  implicit val createContainerStateProtocol = jsonFormat10(ContainerState)
+  implicit val createContainerStateProtocol = jsonFormat11(ContainerState)
   implicit val createContainerNetworkSettingsProtocol = jsonFormat6(ContainerNetworkSettings)
   implicit val createContainerHostConfigProtocol = jsonFormat15(ContainerHostConfig)
   implicit val createInspectContainerResponseProtocol = jsonFormat15(InspectContainerResponse.apply)

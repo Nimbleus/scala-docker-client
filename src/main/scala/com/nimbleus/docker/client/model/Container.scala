@@ -102,7 +102,7 @@ case class ContainerHostConfig(Binds: Option[List[String]], ContainerIDFile: Str
 case class ContainerNetworkSettings(IPAddress: String, IPPrefixLen: Int, Gateway: String, Bridge: String,
                                     PortMapping: Option[Map[String,Map[String, String]]], Ports: Option[Map[String, Option[List[Port2]]]])
 case class ContainerState(Running: Boolean, Pid: Int, ExitCode: Int, StartedAt: String, FinishedAt: String, Paused: Boolean, Restarting: Boolean,
-                          OOMKilled: Boolean, Dead: Boolean, Error: String)
+                          OOMKilled: Boolean, Dead: Boolean, Error: String, Status: String)
 case class ContainerLxcConf(Key: String, Value: String)
 case class ContainerConfig(Hostname: String, User: String, AttachStdin: Boolean,
                            AttachStdout: Boolean, AttachStderr: Boolean, Tty: Boolean,
