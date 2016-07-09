@@ -13,7 +13,7 @@ object DockerProtocol extends DefaultJsonProtocol {
   implicit val imageProtocol = jsonFormat5(Image)
   implicit val containerProcessProtocol = jsonFormat2(ContainerProcess)
   implicit val hostPortProtocol = jsonFormat1(HostPort)
-  implicit val infoProtocol = jsonFormat15(Info)
+  implicit val infoProtocol = jsonFormat14(Info)
   implicit val dockerPortBindingProtocol = jsonFormat4(DockerPortBinding)
   implicit val startConfigProtocol = jsonFormat1(StartConfig)
   implicit val createHostConfigProtocol = jsonFormat5(CreateHostConfig)

@@ -4,13 +4,16 @@
 package com.nimbleus.docker.client
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
 import akka.testkit.ImplicitSender
 import akka.testkit.TestKit
 import org.scalatest._
 import scala.concurrent._
 import org.scalatest.concurrent.ScalaFutures
 import com.nimbleus.docker.client.model._
-import org.scalatest.time.{ Millis, Seconds, Span }
+import org.scalatest.time.{Millis, Seconds, Span}
+import akka.stream.ActorMaterializer
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * This is the unit test for the docker client
@@ -25,321 +28,289 @@ import org.scalatest.time.{ Millis, Seconds, Span }
  *
  */
 class DockerClientSpec(_system: ActorSystem) extends TestKit(_system) with ImplicitSender
-                with WordSpecLike with Matchers with ScalaFutures with BeforeAndAfterAll{
+with WordSpecLike with Matchers with ScalaFutures with BeforeAndAfterAll {
   implicit override val patienceConfig =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(5, Millis))
+    PatienceConfig(timeout = Span(300, Seconds), interval = Span(5, Millis))
 
   def this() = this(ActorSystem("DockerClientSpec"))
 
   override def afterAll {
-    TestKit.shutdownActorSystem(system)
+    Http().shutdownAllConnectionPools() andThen { case _ => TestKit.shutdownActorSystem(system) }
   }
 
-  val host = system.settings.config.getString("docker-remote-api-host")
-  val port = system.settings.config.getInt("docker-remote-api-port")
-
-  val serverUrl : String = s"http://$host:$port"
+  private val host = system.settings.config.getString("docker-remote-api-host")
+  private val port = system.settings.config.getInt("docker-remote-api-port")
+  private val serverUrl: String = s"http://$host:$port"
+  private val authUser = "nimbleusadmin"
+  private val authPassword = "X6T&5jN5Jb!kuU08"
+  private val authEmail = "cstewart@nimbleus.com"
+  private val authAuth = ""
 
   //159.203.72.31:12375/images/create?fromImage=nimbleusadmin/akka-cluster-seed-node
 
-  //val appPort : Map[String, Option[DockerPortBinding]]  =  if (port.isDefined) { Map(port.get + "/tcp" -> None) } else { Map.empty }
-  //val hostConfig = CreateHostConfig(Some(128000000), None, None, false)
-  //val config = CreateConfig(image, Some(labels), env, List.empty[String], Some(appPort), None)
+  //implicit val system = ActorSystem()
+  implicit val materializer = ActorMaterializer()
 
-
-"The scala docker client library" should {
-
-  "create a container" in {
-
-/*
-    // TODO "PortBindings": { "22/tcp": [{ "HostPort": "11022" }] }
-    case class CreateHostConfig(Memory: Option[Int], MemorySwap: Option[Int], CpuShares: Option[Int],
-                                Privileged: Boolean, PortBindings: Option[Map[String, List[HostPort]]] = None)
-
-case class CreateConfig(Image: String, Labels: Option[Map[String,String]], Env: List[String], Cmd: List[String],
-                        ExposedPorts: Option[Map[String, Option[DockerPortBinding]]] = None,
-                        HostConfig: Option[CreateHostConfig])
-
-
-*/
-
-
-    val env: List[String] = List("JAVA_OPTS=-Dport=8500")
-    val cmd: List[String] = List()
-    //val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
-    //val exposedPort = DockerPortBinding(8500)
-    // Runs the basic hello world container and exists
-    val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("8500")))))
-    val config = CreateConfig("nimbleusadmin/sample-web-app", None, env, cmd, Some(Map("8500/tcp" -> None)), Some(hostConfig))
-    val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-    whenReady(futureResult) { result =>
-      result.Id.length should be > 0
-      println("started container with id => " + result.Id)
-      val startResponse = DockerClient.startContainer(serverUrl, result.Id)
-      whenReady(startResponse) { startRes =>
-        startRes.length should be > 0
-        println(startRes)
-      }
-    }
-  }
-
-
-  /*
-    "get the list of active containers" in {
-      val p1: ContainerParam = ContainerParamAll(true)
-      val futureResult: Future[List[Container]] = DockerClient.listContainers(serverUrl, p1)
+  "The scala docker client library" should {
+    "get the current version" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val futureResult: Future[Version] = dockerClient.getVersion
       whenReady(futureResult) { result =>
-        result.length should be >= 0
+        result.Os should be ("linux")
       }
     }
-  */
 
-
-/*  "inspect container" in {
-    val inspectResponse = DockerClient.inspectContainer(serverUrl, "5659880bc4e1")
-    whenReady(inspectResponse) { inspectRes =>
-      inspectRes.Id.length should be > 0
-      println(inspectRes)
-    }
-  }*/
-
-
-/*  "get weave containers" in {
-    val futureResult: Future[List[WeaveContainer]] = DockerClient.listWeaveContainers(serverUrl)
-    whenReady(futureResult, timeout(Span(10, Seconds))) { result =>
-      val test: List[WeaveContainer] = result
-      result should be(List.empty)
-    }
-  }*/
-  //createContainer(serverUrl: String, image: String, tag: String, authConfig: AuthConfig,
-  // containerConfig: CreateConfig, name: Option[String])(implicit system: ActorSystem) : Future[CreateContainerResponse]
-/*
-  "start container" in {
-    val env: List[String] = List()
-    val cmd: List[String] = List()
-    val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
-    val exposedPort = DockerPortBinding(9000)
-    // Runs the basic hello world container and exists
-    val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.8", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-    val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl,  AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"), config, None)
-    whenReady(futureResult, timeout(Span(60, Seconds))) { result =>
-      result.Id.length should be > 0
-      val startResponse = DockerClient.startContainer(serverUrl, result.Id)
-      whenReady(startResponse) { startRes =>
-        startRes.length should be > 0
-        println(startRes)
+    "get docker info" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val futureResult: Future[Info] = dockerClient.getInfo
+      whenReady(futureResult) { result =>
+        println(result)
       }
     }
-  }
-*/
 
-
-/*  "pull remote image" in {
-    val futureResult: Future[Boolean] = DockerClient.createImage(serverUrl, "nimbleusadmin/akka-cluster-seed-node",
-      "2.3.10.8", AuthConfig("nimbleusadmin", "bR8FWoZHyLbFj1Im", "", "cstewart@nimbleus.com"))
-    whenReady(futureResult, timeout(Span(60, Seconds))) { result =>
-      result should be (true)
+    // TODO create a test container image
+    "download docker image" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val futureResult: Future[Boolean] = dockerClient.downloadImage("nimbleusadmin/akka-cluster-seed-node", None)
+      whenReady(futureResult) { result =>
+        result should be (true)
+      }
     }
-  }*/
 
-  /*
-      "get the current version" in {
-        val futureResult: Future[Version] = DockerClient.getVersion(serverUrl)
-        whenReady(futureResult) { result =>
-          result.Version.length should be > 1
-          result.GoVersion.length should be > 1
-          result.GitCommit.length should be > 1
-        }
+    "determine that image exists" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val futureResult: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", None)
+      whenReady(futureResult) { result =>
+        result should be (true)
       }
-      "get the docker info" in {
-        val futureResult: Future[Info] = DockerClient.getInfo(serverUrl)
-        whenReady(futureResult) { result =>
-          result.OperatingSystem.length should be > 1
-        }
-      }
-      "get the docker images" in {
-        val futureResult: Future[List[Image]] = DockerClient.getImages(serverUrl)
-        whenReady(futureResult) { result =>
-          result.length should be >= 0
-        }
-      }
-      "get the list of active containers" in {
-        val p1: ContainerParam = ContainerParamAll(false)
-        val futureResult: Future[List[Container]] = DockerClient.listContainers(serverUrl, p1)
-        whenReady(futureResult) { result =>
-          result.length should be >= 0
-        }
-      }
+    }
 
+    "get the docker images" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val futureResult: Future[List[Image]] = dockerClient.getImages
+      whenReady(futureResult) { result =>
+        println(result)
+      }
+    }
 
-      "create a container" in {
-        val env: List[String] = List()
-        val cmd: List[String] = List()
-        val labels: Map[String,String] = Map("NACREOUS_SEED" -> "true")
-        val exposedPort = DockerPortBinding(9000)
-        // Runs the basic hello world container and exists
-        val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10.7", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-        val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-        whenReady(futureResult) { result =>
-          result.Id.length should be > 0
-          println("started container with id => " + result.Id)
-          val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
-          whenReady(removeResponse) { removeRes =>
-            removeRes.length should be > 0
-            println(removeRes)
+    "create container" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult2: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult2) { result =>
+        result should be (true)
+        val futureResult3: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult3) { result3 =>
+          result3.Id.length should be > 0
+          val futureResult4: Future[String] = dockerClient.removeContainer(result3.Id, true)
+          whenReady(futureResult4) { result4 =>
+            result4 should equal (result3.Id)
           }
         }
       }
+    }
 
-      "start container" in {
-        val env: List[String] = List()
-        val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-        val labels: Map[String,String] = Map()
-        val exposedPort = DockerPortBinding(80)
-        // Runs the basic hello world container and exists
-        val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-        val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-        whenReady(futureResult) { result =>
-          result.Id.length should be > 0
-          val startResponse = DockerClient.startContainer(serverUrl, result.Id)
-          whenReady(startResponse) { startRes =>
-            startRes.length should be > 0
-            println(startRes)
-            val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
-            whenReady(removeResponse) { removeRes =>
-              removeRes.length should be > 0
-              println(removeRes)
+    "start container" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult2: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult2) { result =>
+        result should be (true)
+        val futureResult3: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult3) { result3 =>
+          result3.Id.length should be > 0
+          val futureResult4: Future[String] = dockerClient.startContainer(result3.Id)
+          whenReady(futureResult4) { result4 =>
+            result4 should equal (result3.Id)
+            val futureResult5: Future[String] = dockerClient.removeContainer(result4, true)
+            whenReady(futureResult5) { result5 =>
+              result4 should equal (result4)
             }
           }
         }
       }
+    }
 
-      "stop container" in {
-        val env: List[String] = List()
-        val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-        val labels: Map[String,String] = Map()
-        val exposedPort = DockerPortBinding(80)
-        // Runs the basic hello world container and exists
-        val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-        val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-        whenReady(futureResult) { result =>
-          result.Id.length should be > 0
-          val startResponse = DockerClient.startContainer(serverUrl, result.Id)
-          whenReady(startResponse) { startRes =>
-            startRes.length should be > 0
-            println(startRes)
-            val stopResponse = DockerClient.stopContainer(serverUrl, result.Id)
-            whenReady(stopResponse) { stopRes =>
-              stopRes.length should be > 0
-              println(stopRes)
-              val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
-              whenReady(removeResponse) { removeRes =>
-                removeRes.length should be > 0
-                println(removeRes)
+    "stop container" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult) { result =>
+        result should be (true)
+        val futureResult2: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult2) { result2 =>
+          result2.Id.length should be > 0
+          val futureResult3: Future[String] = dockerClient.startContainer(result2.Id)
+          whenReady(futureResult3) { result3 =>
+            result3 should equal (result2.Id)
+            val futureResult4: Future[String] = dockerClient.stopContainer(result2.Id)
+            whenReady(futureResult4) { result4 =>
+              result4 should equal (result2.Id)
+              val futureResult5: Future[String] = dockerClient.removeContainer(result4, true)
+              whenReady(futureResult5) { result5 =>
+                result4 should equal (result4)
               }
             }
           }
         }
       }
+    }
 
-      "restart container" in {
-        val env: List[String] = List()
-        val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-        val labels: Map[String,String] = Map()
-        val exposedPort = DockerPortBinding(80)
-        // Runs the basic hello world container and exists
-        val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-        val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-        whenReady(futureResult) { result =>
-          result.Id.length should be > 0
-          val startResponse = DockerClient.startContainer(serverUrl, result.Id)
-          whenReady(startResponse) { startRes =>
-            startRes.length should be > 0
-            println(startRes)
-            val restartResponse = DockerClient.restartContainer(serverUrl, result.Id)
-            whenReady(restartResponse) { restartRes =>
-              restartRes.length should be > 0
-              println(restartRes)
-              val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
-              whenReady(removeResponse) { removeRes =>
-                removeRes.length should be > 0
-                println(removeRes)
+    "kill container" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult) { result =>
+        result should be (true)
+        val futureResult2: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult2) { result2 =>
+          result2.Id.length should be > 0
+          val futureResult3: Future[String] = dockerClient.startContainer(result2.Id)
+          whenReady(futureResult3) { result3 =>
+            result3 should equal (result2.Id)
+            val futureResult4: Future[String] = dockerClient.killContainer(result2.Id)
+            whenReady(futureResult4) { result4 =>
+              result4 should equal (result2.Id)
+              val futureResult5: Future[String] = dockerClient.removeContainer(result4, true)
+              whenReady(futureResult5) { result5 =>
+                result4 should equal (result4)
               }
             }
           }
         }
       }
+    }
 
-      "kill container" in {
-        val env: List[String] = List()
-        val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-        val labels: Map[String,String] = Map()
-        val exposedPort = DockerPortBinding(80)
-        // Runs the basic hello world container and exists
-        val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-        val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-        whenReady(futureResult) { result =>
-          result.Id.length should be > 0
-          val killResponse = DockerClient.killContainer(serverUrl, result.Id)
-          whenReady(killResponse) { killRes =>
-            killRes.length should be > 0
-            println(killRes)
-            // TODO inspect container should be non null
-            val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
-            whenReady(removeResponse) { removeRes =>
-              removeRes.length should be > 0
-              println(removeRes)
-            }
-          }
-        }
-      }
-
-      "remove container" in {
-        val env: List[String] = List()
-        val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-        val labels: Map[String,String] = Map()
-        val exposedPort = DockerPortBinding(80)
-        // Runs the basic hello world container and exists
-        val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-        val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-        whenReady(futureResult) { result =>
-          result.Id.length should be > 0
-          val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
-          whenReady(removeResponse) { removeRes =>
-            removeRes.length should be > 0
-            println(removeRes)
-            // TODO inspect container should be null
-          }
-        }
-      }
-
-      "inspect container" in {
-        val env: List[String] = List()
-        val cmd: List[String] = List("/bin/sh", "-c", "while true; do echo hello world; sleep 1; done;")
-        val labels: Map[String,String] = Map("NETWORK_SEED"->"true")
-        val exposedPort = DockerPortBinding(80)
-        // Runs the basic hello world container and exists
-        val config = CreateConfig("b7cf8f0d9e82", Some(labels), env, cmd, Some(Map("80/tcp" -> None)))
-        val futureResult: Future[CreateContainerResponse] = DockerClient.createContainer(serverUrl, config, None)
-        whenReady(futureResult) { result =>
-          result.Id.length should be > 0
-          val startResponse = DockerClient.startContainer(serverUrl, result.Id)
-          whenReady(startResponse) { startRes =>
-            startRes.length should be > 0
-            println(startRes)
-            val inspectResponse = DockerClient.inspectContainer(serverUrl, result.Id)
-            whenReady(inspectResponse) { inspectRes =>
-              inspectRes.Id.length should be > 0
-              println(inspectRes)
-              val removeResponse = DockerClient.removeContainer(serverUrl, result.Id, true)
-              whenReady(removeResponse) { removeRes =>
-                removeRes.length should be > 0
-                println(removeRes)
+    "restart container" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult) { result =>
+        result should be (true)
+        val futureResult2: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult2) { result2 =>
+          result2.Id.length should be > 0
+          val futureResult3: Future[String] = dockerClient.startContainer(result2.Id)
+          whenReady(futureResult3) { result3 =>
+            result3 should equal (result2.Id)
+            val futureResult4: Future[String] = dockerClient.restartContainer(result2.Id)
+            whenReady(futureResult4) { result4 =>
+              result4 should equal (result2.Id)
+              val futureResult5: Future[String] = dockerClient.removeContainer(result4, true)
+              whenReady(futureResult5) { result5 =>
+                result4 should equal (result4)
               }
             }
           }
         }
       }
-  */
+    }
+
+    "pause and unpause container" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult) { result =>
+        result should be (true)
+        val futureResult2: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult2) { result2 =>
+          result2.Id.length should be > 0
+          val futureResult3: Future[String] = dockerClient.startContainer(result2.Id)
+          whenReady(futureResult3) { result3 =>
+            result3 should equal (result2.Id)
+            val futureResult4: Future[String] = dockerClient.pauseContainer(result2.Id)
+            whenReady(futureResult4) { result4 =>
+              result4 should equal (result2.Id)
+              val futureResult5: Future[String] = dockerClient.unpauseContainer(result2.Id)
+              whenReady(futureResult5) { result5 =>
+                result5 should equal(result2.Id)
+                val futureResult6: Future[String] = dockerClient.removeContainer(result4, true)
+                whenReady(futureResult6) { result6 =>
+                  result6 should equal (result4)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    "list containers" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult) { result =>
+        result should be (true)
+        val futureResult2: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult2) { result2 =>
+          result2.Id.length should be > 0
+          val p1: ContainerParam = ContainerParamAll(true)
+          val futureResult3: Future[List[Container]] = dockerClient.listContainers(p1)
+          whenReady(futureResult3) { result3 =>
+            val futureResult4: Future[String] = dockerClient.removeContainer(result2.Id, true)
+            whenReady(futureResult4) { result4 =>
+              result4 should equal(result2.Id)
+            }
+          }
+        }
+      }
+    }
+
+    "inspect container" in {
+      val auth = AuthConfig(authUser, authPassword , authAuth, authEmail)
+      val dockerClient = new DockerClient(host, Some(port), auth)
+      val env: List[String] = List("JAVA_OPTS=-Dport=8500")
+      val cmd: List[String] = List()
+      val hostConfig = CreateHostConfig(Some(128000000), None, None, false, Some(Map("8500/tcp" -> List(HostPort("9000")))))
+      val config = CreateConfig("nimbleusadmin/akka-cluster-seed-node:2.3.10", None, env, cmd, Some(Map("9000/tcp" -> None)), Some(hostConfig))
+      val futureResult: Future[Boolean] = dockerClient.imageExist("nimbleusadmin/akka-cluster-seed-node", Some("2.3.10"))
+      whenReady(futureResult) { result =>
+        result should be (true)
+        val futureResult2: Future[CreateContainerResponse] = dockerClient.createContainer(config, None)
+        whenReady(futureResult2) { result2 =>
+          result2.Id.length should be > 0
+          val futureResult3: Future[InspectContainerResponse] = dockerClient.inspectContainer(result2.Id)
+          whenReady(futureResult3) { result3 =>
+            val futureResult4: Future[String] = dockerClient.removeContainer(result2.Id, true)
+            whenReady(futureResult4) { result4 =>
+              result4 should equal(result2.Id)
+            }
+          }
+        }
+      }
+    }
   }
 }
