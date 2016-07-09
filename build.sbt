@@ -24,20 +24,20 @@ publishTo := {
     Some("releases"  at nimbleus + "release/")
 }
 
-resolvers += Resolvers.sprayRelease
-
-resolvers += Resolvers.sprayNightly
-
 resolvers += Resolvers.typeSafe
 
 resolvers += Resolvers.softprops
 
 libraryDependencies ++= Seq(
-  Compile.sprayClient,
-  Compile.sprayJson,
   Compile.akkaKernel,
   Compile.akkaActor,
   Compile.akkaTestKit,
+  Compile.akkaCluster,
+  Compile.akkaStream,
+  Compile.akkaHttpExperimental,
+  Compile.akkaHttpSprayJsonExperimental,
+  Compile.akkaHttpCore,
+  Compile.akkaHttpTestKit,
   Compile.scalaTest,
   Compile.softprops
 )
