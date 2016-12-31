@@ -5,7 +5,7 @@ import sbt._
 import Keys._
 
 object DockerClient {
-  val Version = "0.12.0"
+  val Version = "0.12.0-SNAPSHOT"
 }
 
 object Versions {
@@ -23,6 +23,8 @@ object Resolvers {
   val sprayRelease             = "spray repo"                 at "http://repo.spray.io"
   val sprayNightly             = "spray nightly repo"         at "http://nightlies.spray.io"
   val softprops                = "SoftProps"                  at "http://dl.bintray.com/content/softprops/maven"
+  val nimbleusSnapshots        = "Artifactory Snapshots"      at "https://nimbleus.jfrog.io/nimbleus/libs-snapshot-local/"
+  val nimbleusReleases         = "Artifactory Releases"       at "https://nimbleus.jfrog.io/nimbleus/libs-release-local/"
 }
 
 object Compile {

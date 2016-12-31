@@ -10,19 +10,30 @@ crossScalaVersions  := Seq("2.11.5", "2.10.0")
 
 mainClass := Some("com.nimbleus.docker.client.Main")
 
-resolvers ++= Seq("Nimbleus Releases" at "https://repository-nimbleus.forge.cloudbees.com/release/", "Nimbleus Snapshots" at "https://repository-nimbleus.forge.cloudbees.com/snapshot/")
-
+// developers will only have read only access to the artifacts
+// dev-ops will have full publishing rights
 credentials += Credentials(
-      if (Path("/private/nimbleus/repository.credentials").exists) new File("/private/nimbleus/repository.credentials")
-      else new File(Path.userHome, ".sbt/.nimbleus-credentials"))
+  if (Path(Path.userHome + "/.sbt/.nimbleus-artifactory-creds").exists) {
+    new File(Path.userHome, ".sbt/.nimbleus-artifactory-creds")
+  } else {
+    new File("./.nimbleus-artifactory-creds")
+  }
+)
+
+val localRelease  = "local-release"  at "https://nimbleus.jfrog.io/nimbleus/libs-release-local"
+val localSnapshot = "local-snapshot" at "https://nimbleus.jfrog.io/nimbleus/libs-snapshot-local"
 
 publishTo := {
-  val nimbleus = "https://repository-nimbleus.forge.cloudbees.com/"
   if (DockerClient.Version.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nimbleus + "snapshot/")
+    Some(localSnapshot)
   else
-    Some("releases"  at nimbleus + "release/")
+    Some(localRelease)
 }
+
+publishArtifact in Test := false
+
+resolvers += Resolvers.nimbleusSnapshots
+resolvers += Resolvers.nimbleusReleases
 
 resolvers += Resolvers.typeSafe
 
